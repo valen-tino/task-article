@@ -1,0 +1,76 @@
+Buat sistem sederhana CRUD + authentication dengan spesifikasi seperti dibawah ini:
+
+### USER STORY
+Sebagai seorang user, user ingin agar bisa membuat article, membaca article, mengupdate dan menghapus article.
+Saat membuat atau memodifikasi article, user ingin agar bisa mengupload gambar juga.
+
+### SPESIFIKASI MODEL
+#1 MODEL article:
+	- table name : articles
+	- fields :
+		- id -> primary key, big integer -> id dari article
+		- title -> varchar(200) -> judul dari article
+		- content -> text -> isi dari article
+		- image -> text -> alamat gambar article
+		- created_at -> datetime -> tanggal dibuat article, biasanya auto diisi oleh sistem
+		- updated_at -> datetime -> tanggal record di update, biasanya auto diisi oleh sistem
+
+### SPESIFIKASI API CRUD
+- GET -> {domain}/api/article : endpoint untuk menampilkan list article
+	- output : JSONObject
+		- status : 200
+		- message : null
+		- data : JSONArray[ JSONObject ]
+			- id : id dari article
+			- title : judul dari article
+			- image : url gambar article
+			- summary : ringkasan dari article.content
+			- created_at : tanggal dibuatnya article
+
+- POST -> {domain}/api/article : endpoint untuk create article
+	- input :
+		- title : judul dari article
+		- content : content dari article
+	
+	- output : JSONObject
+		- status : 201
+		- message : "Article has been successfully posted"
+		- data : JSONObject
+			- id : id dari article
+			- title : judul dari article
+			- image : url gambar article
+			- summary : ringkasan dari article.content
+			- created_at : tanggal dibuatnya article
+
+- GET -> {domain}/api/article/{id} : endpoint untuk melihat detail article
+	- output : JSONObject
+		- status : 200
+		- message : null
+		- data : JSONObject
+			- id : id dari article
+			- title : judul dari article
+			- image : url gambar article
+			- content : isi dari article
+			- created_at : tanggal dibuatnya article
+
+		
+- PUT -> {domain}/api/article/{id} : endpoint untuk update suatu article
+	- input :
+		- title : judul dari article
+		- content : content dari article
+	
+	- output : JSONObject
+		- status : 200
+		- message : "Article has been successfully updated"
+		- data : JSONObject
+			- id : id dari article
+			- title : judul dari article
+			- image : url gambar article
+			- summary : ringkasan dari article.content
+			- created_at : tanggal dibuatnya article
+
+- DELETE -> {domain}/api/article/{id} : endpoint untuk delete suatu article
+	- output : JSONObject
+		- status : 200
+		- message : "Article has been successfully deleted"
+		- data : null
