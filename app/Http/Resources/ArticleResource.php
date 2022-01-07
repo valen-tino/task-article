@@ -20,7 +20,7 @@ class ArticleResource extends JsonResource
             'title' => $this->title,
             'content' => $this->content,
             'image' => $this->image,
-            'summary' => Str::limit($this->content, 50),
+            'summary' => Str::of(strip_tags($this->content))->substr(150),
             'created_at' => $this->created_at
         ];
 

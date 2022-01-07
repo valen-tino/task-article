@@ -15,7 +15,6 @@ class ArticleController extends Controller
     {
         // Untuk Menampilkan List tabel article
         $article=Article::all();
-
         return response()->json(
             [
                 'status' => 200,
@@ -42,13 +41,13 @@ class ArticleController extends Controller
     public function ArticleUpload(Request $req)
     {
         // Untuk Menambah Artikel dan Gambar
+        $article = new article;
+        $article -> title = $req->title;
+        $article -> content = $req->content;
+
         if($req -> hasFile('image'))
         {
-            $article = new article;
-            $article -> title = $req->title;
-            $article -> content = $req->content;
             $image = $req->file('image');
-
             $slug_title = Str::slug($req->title,'-');
             $namaGambar = $slug_title.'-'.rand().'.'.$image->getClientOriginalExtension();
             $destinationPath = storage_path('app\gambar-artikel');
@@ -70,10 +69,6 @@ class ArticleController extends Controller
         // Untuk Menambah Artikel Saja
         else{
             $sample = "null";
-
-            $article = new article;
-            $article -> title = $req->title;
-            $article -> content = $req->content;
             $article -> image = $sample;
             $article -> save();
 
@@ -88,12 +83,53 @@ class ArticleController extends Controller
 
     }
 
+    public function ArticleEdit(Request $req, $id)
+    {
+        // Untuk Mengubah Artikel dan Gambar
+
+            $article = article::findOrFail($id);
+
+            if ($req->hasFile('image')){
+
+                $image_path = storage_path('app\gambar-artikel');
+                if (File::exists($image_path)) {
+                    File::delete($image_path);
+                }
+
+                $image = $req->file('image');
+                $slug_title = Str::slug($req->title,'-');
+                $namaGambar = $slug_title.'-'.rand().'.'.$image->getClientOriginalExtension();
+                $UrlDanNamaGambar = $image->move($image_path, $namaGambar);
+
+                $article -> image = $UrlDanNamaGambar;
+                $article -> title = $req->input('title');
+                $article -> content = $req->input('content');
+                $article -> save();
+                
+                return response()->json(
+                    [
+                        'status' => 200,
+                        'message' => "Article has been successfully Updated",
+                        'data' => new ArticleResource($article)
+                    ]
+                 );
+            } 
+              
+            else {
+                $article -> title = $req->input('title');
+                $article -> content = $req->input('content');
+                
+            }
+
+    }
+
     // Untuk Menghapus Artikel
     public function ArticleDelete(Request $id)
     {    
         $article = article::findOrFail($id->id);
         $image_path = $article->image;
 
+        // Untuk Menghapus Artikel yang ada gambarnya
         if(File::exists($image_path)) {
             File::delete($image_path);
             $article->delete();
@@ -107,6 +143,8 @@ class ArticleController extends Controller
                 ]
              );
         }
+
+        // Untuk Menghapus Artikel yang tidak ada gambarnya
         else{
             $article->delete();
             $article->update(['article' => null]);
