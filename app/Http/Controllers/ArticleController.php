@@ -83,44 +83,57 @@ class ArticleController extends Controller
 
     }
 
-    public function ArticleEdit(Request $req, $id)
+    public function ArticleEdit(Request $request, $id)
     {
         // Untuk Mengubah Artikel dan Gambar
 
             $article = article::findOrFail($id);
+            $article -> title = $request->input('title');
+            $article -> content = $request->input('content');
 
-            if ($req->hasFile('image')){
+            $image = $request->file('image');
+            $imageURL= $article->image;
+            $namaGambar="";
 
-                $image_path = storage_path('app\gambar-artikel');
-                if (File::exists($image_path)) {
-                    File::delete($image_path);
+            if($request->hasFile('image')){
+                if(File::exists($imageURL)){
+                    File::delete($imageURL);
                 }
+                
+                $namaGambar=$request->file('image');
 
-                $image = $req->file('image');
-                $slug_title = Str::slug($req->title,'-');
+                $slug_title = Str::slug($request->title,'-');
                 $namaGambar = $slug_title.'-'.rand().'.'.$image->getClientOriginalExtension();
-                $UrlDanNamaGambar = $image->move($image_path, $namaGambar);
+                $tujuanGambar = storage_path('app\gambar-artikel');
+                $UrlDanNamaGambar = $image->move($tujuanGambar,$namaGambar);
 
                 $article -> image = $UrlDanNamaGambar;
-                $article -> title = $req->input('title');
-                $article -> content = $req->input('content');
                 $article -> save();
                 
-                return response()->json(
-                    [
+                    return response()->json(
+                        [
                         'status' => 200,
                         'message' => "Article has been successfully Updated",
-                        'data' => new ArticleResource($article)
-                    ]
-                 );
-            } 
-              
-            else {
-                $article -> title = $req->input('title');
-                $article -> content = $req->input('content');
-                
-            }
+                        'data' => new ArticleResource($article)  
+                        ]
+                    );
 
+                }
+            
+            else{
+                $sample = "null";
+                $article -> image = $sample;
+                $article -> save();
+
+                return response()->json(
+                    [
+                    'status' => 200,
+                    'message' => "Article has been successfully Updated",
+                    'data' => new ArticleResource($article)        
+                    ]
+                );
+            }
+    
     }
 
     // Untuk Menghapus Artikel
